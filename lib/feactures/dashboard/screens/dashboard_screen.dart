@@ -250,97 +250,108 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Segunda fila: Progreso del Cronograma y Avance Mensual
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final isWide = constraints.maxWidth >= 900;
+            Consumer<DashboardProvider>(
+              builder: (context, dashboardProvider, _) {
+                // Obtener los meses actuales para el avance mensual
+                final now = DateTime.now();
+                final months = [
+                  'Ene',
+                  'Feb',
+                  'Mar',
+                  'Abr',
+                  'May',
+                  'Jun',
+                  'Jul',
+                ];
+                final monthlyData = months
+                    .map(
+                      (month) => MonthlyProgress(
+                        month: month,
+                        value: dashboardProvider.monthlyProgress[month] ?? 0.0,
+                        isCurrent: month == _getMonthAbbreviation(now.month),
+                      ),
+                    )
+                    .toList();
 
-                if (isWide) {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: ScheduleProgressCard(
-                          status: 'A tiempo',
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isWide = constraints.maxWidth >= 900;
+
+                    if (isWide) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: ScheduleProgressCard(
+                              status: dashboardProvider.totalProjectsCount > 0
+                                  ? 'A tiempo'
+                                  : 'Sin datos',
+                              subtitle: 'vs. Planificado',
+                              onTap: () => _showDetailDialog(
+                                context,
+                                'Progreso del Cronograma',
+                                dashboardProvider.totalProjectsCount > 0
+                                    ? 'Estado: A tiempo ✓\n\n'
+                                          'El proyecto está avanzando según lo planificado.'
+                                    : 'No hay proyectos activos en este momento.',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            flex: 2,
+                            child: MonthlyProgressCard(
+                              monthlyData: monthlyData,
+                              onTap: () => _showSnackBar(
+                                context,
+                                dashboardProvider.totalProjectsCount > 0
+                                    ? 'Ver detalle del avance mensual'
+                                    : 'No hay datos de avance mensual',
+                              ),
+                              onBarTap: (data) => _showSnackBar(
+                                context,
+                                'Mes de ${data.month}: ${(data.value * 100).toStringAsFixed(0)}% de avance',
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    return Column(
+                      children: [
+                        ScheduleProgressCard(
+                          status: dashboardProvider.totalProjectsCount > 0
+                              ? 'A tiempo'
+                              : 'Sin datos',
                           subtitle: 'vs. Planificado',
                           onTap: () => _showDetailDialog(
                             context,
                             'Progreso del Cronograma',
-                            'Estado: A tiempo ✓\n\n'
-                                'El proyecto está avanzando según lo planificado.\n'
-                                'Fecha estimada de finalización: 31/12/2024',
+                            dashboardProvider.totalProjectsCount > 0
+                                ? 'Estado: A tiempo ✓\n\n'
+                                      'El proyecto está avanzando según lo planificado.'
+                                : 'No hay proyectos activos en este momento.',
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 2,
-                        child: MonthlyProgressCard(
-                          monthlyData: [
-                            MonthlyProgress(month: 'Ene', value: 0.6),
-                            MonthlyProgress(month: 'Feb', value: 0.7),
-                            MonthlyProgress(month: 'Mar', value: 0.75),
-                            MonthlyProgress(month: 'Abr', value: 0.8),
-                            MonthlyProgress(month: 'May', value: 0.9),
-                            MonthlyProgress(
-                              month: 'Jun',
-                              value: 1.0,
-                              isCurrent: true,
-                            ),
-                            MonthlyProgress(month: 'Jul', value: 0.2),
-                          ],
+                        const SizedBox(height: 16),
+                        MonthlyProgressCard(
+                          monthlyData: monthlyData,
                           onTap: () => _showSnackBar(
                             context,
-                            'Ver detalle del avance mensual',
+                            dashboardProvider.totalProjectsCount > 0
+                                ? 'Ver detalle del avance mensual'
+                                : 'No hay datos de avance mensual',
                           ),
                           onBarTap: (data) => _showSnackBar(
                             context,
                             'Mes de ${data.month}: ${(data.value * 100).toStringAsFixed(0)}% de avance',
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                }
-
-                return Column(
-                  children: [
-                    ScheduleProgressCard(
-                      status: 'A tiempo',
-                      subtitle: 'vs. Planificado',
-                      onTap: () => _showDetailDialog(
-                        context,
-                        'Progreso del Cronograma',
-                        'Estado: A tiempo ✓\n\n'
-                            'El proyecto está avanzando según lo planificado.\n'
-                            'Fecha estimada de finalización: 31/12/2024',
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    MonthlyProgressCard(
-                      monthlyData: [
-                        MonthlyProgress(month: 'Ene', value: 0.6),
-                        MonthlyProgress(month: 'Feb', value: 0.7),
-                        MonthlyProgress(month: 'Mar', value: 0.75),
-                        MonthlyProgress(month: 'Abr', value: 0.8),
-                        MonthlyProgress(month: 'May', value: 0.9),
-                        MonthlyProgress(
-                          month: 'Jun',
-                          value: 1.0,
-                          isCurrent: true,
-                        ),
-                        MonthlyProgress(month: 'Jul', value: 0.2),
                       ],
-                      onTap: () => _showSnackBar(
-                        context,
-                        'Ver detalle del avance mensual',
-                      ),
-                      onBarTap: (data) => _showSnackBar(
-                        context,
-                        'Mes de ${data.month}: ${(data.value * 100).toStringAsFixed(0)}% de avance',
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 );
               },
             ),
@@ -348,5 +359,23 @@ class DashboardScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getMonthAbbreviation(int month) {
+    const months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
+    return months[month - 1];
   }
 }

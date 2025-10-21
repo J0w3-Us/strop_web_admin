@@ -5,7 +5,7 @@ import 'package:strop_admin_panel/domain/projects/project.dart';
 /// Simulated API Project Repository
 class ProjectRepository {
   ProjectRepository._();
-  static final ProjectRepository instance = ProjectRepository._().._seed();
+  static final ProjectRepository instance = ProjectRepository._();
 
   final List<Project> _projects = [];
 
@@ -57,24 +57,4 @@ class ProjectRepository {
   }
 
   String newId() => Random().nextInt(1 << 31).toString();
-
-  void _seed() {
-    // Dummy seed data
-    final now = DateTime.now();
-    for (var i = 1; i <= 5; i++) {
-      _projects.add(
-        Project(
-          id: newId(),
-          code: 'PRJ-${100 + i}',
-          name: 'Proyecto $i',
-          description: 'Descripción del proyecto $i',
-          status: i.isEven ? ProjectStatus.inProgress : ProjectStatus.planned,
-          startDate: now.subtract(Duration(days: i * 30)),
-          endDate: i.isEven ? null : now.add(Duration(days: i * 45)),
-          members: ['u1', 'u2'],
-          documents: const ['planos.pdf', 'contrato.docx'],
-        ),
-      );
-    }
-  }
 }
