@@ -361,6 +361,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
 }
 
 class _SelectMembersDialog extends StatefulWidget {
+  // ignore: use_super_parameters
   const _SelectMembersDialog({Key? key, required this.available, required this.selectedIds}) : super(key: key);
 
   final List<User> available;

@@ -11,10 +11,6 @@ void main() {
     tester.binding.window.physicalSizeTestValue = const Size(1400, 900);
     tester.binding.window.devicePixelRatioTestValue = 1.0;
 
-    addTearDown(() {
-      tester.binding.window.clearPhysicalSizeTestValue();
-      tester.binding.window.clearDevicePixelRatioTestValue();
-    });
 
     await tester.pumpWidget(
       ChangeNotifierProvider<DashboardProvider>(create: (_) => DashboardProvider(), child: const MyApp()),
@@ -52,5 +48,10 @@ void main() {
 
     // Expect the KPI to show 1
     expect(find.text('1'), findsWidgets);
+
+    addTearDown(() {
+      tester.binding.window.clearPhysicalSizeTestValue();
+      tester.binding.window.clearDevicePixelRatioTestValue();
+    });
   });
 }

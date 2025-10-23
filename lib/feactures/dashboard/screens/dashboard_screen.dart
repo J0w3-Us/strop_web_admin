@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:strop_admin_panel/feactures/dashboard/widgets/metric_card.dart';
-import 'package:strop_admin_panel/feactures/dashboard/widgets/circular_progress_card.dart';
 import 'package:strop_admin_panel/feactures/dashboard/widgets/cost_control_card.dart';
-import 'package:strop_admin_panel/feactures/dashboard/widgets/incident_card.dart';
-import 'package:strop_admin_panel/feactures/dashboard/widgets/schedule_progress_card.dart';
-import 'package:strop_admin_panel/feactures/dashboard/widgets/monthly_progress_card.dart';
+import 'package:strop_admin_panel/feactures/dashboard/widgets/small_metric_card.dart';
+import 'package:strop_admin_panel/feactures/dashboard/widgets/project_progress_card.dart';
+import 'package:strop_admin_panel/feactures/dashboard/widgets/inbox_actions_table.dart';
+// schedule and monthly progress widgets are not used in the redesigned layout
 import 'package:strop_admin_panel/core/providers/dashboard_provider.dart';
 
 /// Pantalla principal del Dashboard - Conectado con estado dinámico
@@ -54,31 +52,103 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Título
-            const Text(
-              'Dashboard',
-              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF0A2C52)),
+            // Título + selector de proyecto en la esquina superior derecha
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Centro de Mando',
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF0A2C52)),
+                ),
+                // Selector dinámico de proyecto usando DashboardProvider
+                Consumer<DashboardProvider>(
+                  builder: (context, dashboardProvider, _) {
+                    final projects = dashboardProvider.projects;
+                    final selectedId = dashboardProvider.selectedProjectId;
+                    return Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: SizedBox(
+                        width: 300,
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String?>(
+                            value: selectedId,
+                            hint: const Text('Vista Global (Todos los Proyectos)', overflow: TextOverflow.ellipsis),
+                            isExpanded: true,
+                            icon: const Icon(Icons.expand_more, color: Color(0xFF0A2C52)),
+                            selectedItemBuilder: (ctx) {
+                              // Selected display: null (global) + project names
+                              return [
+                                const Text(
+                                  'Vista Global (Todos los Proyectos)',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: Color(0xFF0A2C52)),
+                                ),
+                                ...projects.map(
+                                  (p) => Text(
+                                    p.name,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(color: Color(0xFF0A2C52)),
+                                  ),
+                                ),
+                              ];
+                            },
+                            items: [
+                              const DropdownMenuItem<String?>(
+                                value: null,
+                                child: Text('Vista Global (Todos los Proyectos)'),
+                              ),
+                              ...projects.map((p) => DropdownMenuItem<String?>(value: p.id, child: Text(p.name))),
+                            ],
+                            onChanged: (v) => dashboardProvider.setSelectedProject(v),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 32),
 
-            // KPIs dinámicos - Conectados con DashboardProvider
+            // Top small metrics row
             Consumer<DashboardProvider>(
               builder: (context, dashboardProvider, _) {
                 return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: MetricCard(
-                        title: 'Proyectos Activos',
-                        value: '${dashboardProvider.activeProjectsCount}',
-                        onTap: () => context.go('/app/projects'),
+                      child: SmallMetricCard(
+                        value: dashboardProvider.criticalIncidentsCount,
+                        label: 'Críticas',
+                        color: Colors.redAccent,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: MetricCard(
-                        title: 'Total de Proyectos',
-                        value: '${dashboardProvider.totalProjectsCount}',
-                        onTap: () => context.go('/app/projects'),
+                      child: SmallMetricCard(
+                        value: dashboardProvider.highIncidentsCount,
+                        label: 'Medias/Altas',
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: SmallMetricCard(
+                        value: dashboardProvider.lowIncidentsCount,
+                        label: 'Bajas',
+                        color: Colors.green,
                       ),
                     ),
                   ],
@@ -87,254 +157,81 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Acciones Pendientes - Dinámico
+            // Segunda fila: Progreso y Control de Gastos
             Consumer<DashboardProvider>(
               builder: (context, dashboardProvider, _) {
-                return MetricCard(
-                  title: 'Acciones Pendientes',
-                  value: '${dashboardProvider.pendingActionsCount}',
-                  onTap: () => _showDetailDialog(
-                    context,
-                    'Acciones Pendientes',
-                    dashboardProvider.pendingActionsCount == 0
-                        ? 'No hay acciones pendientes en este momento.'
-                        : 'Tienes ${dashboardProvider.pendingActionsCount} acciones que requieren tu atención.',
-                  ),
-                  actionButton: ElevatedButton(
-                    onPressed: () => context.go('/app/authorizations'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF8800),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    child: const Text('Ver todas'),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Mover Incidencias arriba, justo después de Acciones Pendientes
-            Consumer<DashboardProvider>(
-              builder: (context, dashboardProvider, _) {
-                return Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: IncidentCard(
-                        count: dashboardProvider.openIncidentsCount,
-                        subtitle: 'Abiertas',
-                        onTap: () => context.go('/app/incidents'),
-                        critical: dashboardProvider.criticalIncidentsCount,
-                        high: dashboardProvider.highIncidentsCount,
-                        medium: dashboardProvider.mediumIncidentsCount,
-                        low: dashboardProvider.lowIncidentsCount,
-                      ),
-                    ),
-                    // espacio a la derecha para mantener proporción similar a la UI
-                    const SizedBox(width: 16),
-                    Expanded(flex: 2, child: const SizedBox.shrink()),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Primera fila: Avance General y Control de Costos
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final isWide = constraints.maxWidth >= 900;
-
-                if (isWide) {
-                  return Consumer<DashboardProvider>(
-                    builder: (context, dashboardProvider, _) {
-                      final progressPercentage = dashboardProvider.generalProgress * 100;
-                      final budgetUsedPercentage = dashboardProvider.budgetUsagePercentage * 100;
-
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: CircularProgressCard(
-                              title: 'Avance General de Obra',
-                              percentage: progressPercentage,
-                              subtitle: 'Completado',
-                              onTap: () => _showDetailDialog(
-                                context,
-                                'Avance General de Obra',
-                                'Progreso actual: ${progressPercentage.toStringAsFixed(0)}%\n\n'
-                                    'Este valor se calcula automáticamente basado en el progreso de proyectos activos.',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: CostControlCard(
-                              title: 'Control de Costos',
-                              amount: '\$${dashboardProvider.totalExpenses.toStringAsFixed(0)}',
-                              subtitle: 'Gasto Real',
-                              currentValue: dashboardProvider.totalExpenses,
-                              maxValue: dashboardProvider.totalBudget == 0 ? 1 : dashboardProvider.totalBudget,
-                              onTap: () => _showDetailDialog(
-                                context,
-                                'Control de Costos',
-                                'Presupuesto Total: \$${dashboardProvider.totalBudget.toStringAsFixed(0)}\n'
-                                    'Gasto Real: \$${dashboardProvider.totalExpenses.toStringAsFixed(0)}\n'
-                                    'Disponible: \$${(dashboardProvider.totalBudget - dashboardProvider.totalExpenses).toStringAsFixed(0)}\n\n'
-                                    'Uso: ${budgetUsedPercentage.toStringAsFixed(0)}%',
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-
-                return Consumer<DashboardProvider>(
-                  builder: (context, dashboardProvider, _) {
-                    final progressPercentage = dashboardProvider.generalProgress * 100;
-                    final budgetUsedPercentage = dashboardProvider.budgetUsagePercentage * 100;
-
-                    return Column(
-                      children: [
-                        CircularProgressCard(
-                          title: 'Avance General de Obra',
-                          percentage: progressPercentage,
-                          subtitle: 'Completado',
-                          onTap: () => _showDetailDialog(
-                            context,
-                            'Avance General de Obra',
-                            'Progreso actual: ${progressPercentage.toStringAsFixed(0)}%\n\n'
-                                'Este valor se calcula automáticamente basado en el progreso de proyectos activos.',
-                          ),
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: ProjectProgressCard(
+                          progress: dashboardProvider.generalProgress,
+                          phase: 'Estructura',
+                          eta: '15/12/2024',
                         ),
-                        const SizedBox(height: 16),
-                        CostControlCard(
-                          title: 'Control de Costos',
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 1,
+                        child: CostControlCard(
+                          title: 'Control de Gastos',
                           amount: '\$${dashboardProvider.totalExpenses.toStringAsFixed(0)}',
-                          subtitle: 'Gasto Real',
+                          subtitle: 'Presupuesto Ejecutado',
                           currentValue: dashboardProvider.totalExpenses,
                           maxValue: dashboardProvider.totalBudget == 0 ? 1 : dashboardProvider.totalBudget,
                           onTap: () => _showDetailDialog(
                             context,
-                            'Control de Costos',
-                            'Presupuesto Total: \$${dashboardProvider.totalBudget.toStringAsFixed(0)}\n'
-                                'Gasto Real: \$${dashboardProvider.totalExpenses.toStringAsFixed(0)}\n'
-                                'Disponible: \$${(dashboardProvider.totalBudget - dashboardProvider.totalExpenses).toStringAsFixed(0)}\n\n'
-                                'Uso: ${budgetUsedPercentage.toStringAsFixed(0)}%',
+                            'Control de Gastos',
+                            'Presupuesto Total: \$${dashboardProvider.totalBudget.toStringAsFixed(0)}',
                           ),
                         ),
-                      ],
-                    );
-                  },
+                      ),
+                    ],
+                  ),
                 );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Bandeja de Entrada (tabla)
+            Consumer<DashboardProvider>(
+              builder: (context, dashboardProvider, _) {
+                final items = [
+                  InboxItem(
+                    priority: 'Crítica',
+                    task: 'Falta de material de seguridad en Área 5',
+                    project: 'Torre Residencial Centinela',
+                    priorityColor: Colors.redAccent,
+                  ),
+                  InboxItem(
+                    priority: 'Crítica',
+                    task: 'Aprobación de presupuesto para cimientos',
+                    project: 'Complejo de Oficinas Nova',
+                    priorityColor: Colors.redAccent,
+                  ),
+                  InboxItem(
+                    priority: 'Media/Alta',
+                    task: 'Revisar plano estructural modificado',
+                    project: 'Centro Comercial El Mirador',
+                    priorityColor: Colors.orange,
+                  ),
+                ];
+
+                return InboxActionsTable(items: items);
               },
             ),
             const SizedBox(height: 16),
 
-            // Segunda fila: Progreso del Cronograma y Avance Mensual
-            Consumer<DashboardProvider>(
-              builder: (context, dashboardProvider, _) {
-                // Obtener los meses actuales para el avance mensual
-                final now = DateTime.now();
-                final months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'];
-                final monthlyData = months
-                    .map(
-                      (month) => MonthlyProgress(
-                        month: month,
-                        value: dashboardProvider.monthlyProgress[month] ?? 0.0,
-                        isCurrent: month == _getMonthAbbreviation(now.month),
-                      ),
-                    )
-                    .toList();
-
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isWide = constraints.maxWidth >= 900;
-
-                    if (isWide) {
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: ScheduleProgressCard(
-                              status: dashboardProvider.totalProjectsCount > 0 ? 'A tiempo' : 'Sin datos',
-                              subtitle: 'vs. Planificado',
-                              onTap: () => _showDetailDialog(
-                                context,
-                                'Progreso del Cronograma',
-                                dashboardProvider.totalProjectsCount > 0
-                                    ? 'Estado: A tiempo ✓\n\n'
-                                          'El proyecto está avanzando según lo planificado.'
-                                    : 'No hay proyectos activos en este momento.',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 2,
-                            child: MonthlyProgressCard(
-                              monthlyData: monthlyData,
-                              onTap: () => _showSnackBar(
-                                context,
-                                dashboardProvider.totalProjectsCount > 0
-                                    ? 'Ver detalle del avance mensual'
-                                    : 'No hay datos de avance mensual',
-                              ),
-                              onBarTap: (data) => _showSnackBar(
-                                context,
-                                'Mes de ${data.month}: ${(data.value * 100).toStringAsFixed(0)}% de avance',
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-
-                    return Column(
-                      children: [
-                        ScheduleProgressCard(
-                          status: dashboardProvider.totalProjectsCount > 0 ? 'A tiempo' : 'Sin datos',
-                          subtitle: 'vs. Planificado',
-                          onTap: () => _showDetailDialog(
-                            context,
-                            'Progreso del Cronograma',
-                            dashboardProvider.totalProjectsCount > 0
-                                ? 'Estado: A tiempo ✓\n\n'
-                                      'El proyecto está avanzando según lo planificado.'
-                                : 'No hay proyectos activos en este momento.',
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        MonthlyProgressCard(
-                          monthlyData: monthlyData,
-                          onTap: () => _showSnackBar(
-                            context,
-                            dashboardProvider.totalProjectsCount > 0
-                                ? 'Ver detalle del avance mensual'
-                                : 'No hay datos de avance mensual',
-                          ),
-                          onBarTap: (data) => _showSnackBar(
-                            context,
-                            'Mes de ${data.month}: ${(data.value * 100).toStringAsFixed(0)}% de avance',
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
+            // (Se eliminó la tarjeta de 'Acciones Pendientes' — queda solo la Bandeja de Entrada arriba)
+            const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
 
-  String _getMonthAbbreviation(int month) {
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    return months[month - 1];
-  }
+  // helper removed: monthly/schedule widgets are no longer used in redesigned layout
 }

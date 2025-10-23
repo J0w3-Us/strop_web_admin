@@ -4,10 +4,49 @@ import 'package:strop_admin_panel/domain/projects/project.dart';
 
 /// Simulated API Project Repository
 class ProjectRepository {
-  ProjectRepository._();
+  ProjectRepository._() {
+    _initializeSampleData();
+  }
   static final ProjectRepository instance = ProjectRepository._();
 
   final List<Project> _projects = [];
+
+  void _initializeSampleData() {
+    _projects.addAll([
+      Project(
+        id: '1',
+        code: 'ECC001',
+        name: 'Edificio Corporativo Central',
+        startDate: DateTime.now().subtract(const Duration(days: 60)),
+        endDate: DateTime.now().add(const Duration(days: 40)),
+        status: ProjectStatus.inProgress,
+      ),
+      Project(
+        id: '2',
+        code: 'RLV002',
+        name: 'Residencial Las Vistas Fase II',
+        startDate: DateTime.now().subtract(const Duration(days: 120)),
+        endDate: DateTime.now().subtract(const Duration(days: 10)),
+        status: ProjectStatus.completed,
+      ),
+      Project(
+        id: '3',
+        code: 'PIN003',
+        name: 'Parque Industrial del Norte',
+        startDate: DateTime.now().subtract(const Duration(days: 30)),
+        endDate: DateTime.now().add(const Duration(days: 60)),
+        status: ProjectStatus.planned,
+      ),
+      Project(
+        id: '4',
+        code: 'CCM004',
+        name: 'Centro Comercial Metrópolis',
+        startDate: DateTime.now().subtract(const Duration(days: 45)),
+        endDate: DateTime.now().add(const Duration(days: 15)),
+        status: ProjectStatus.onHold,
+      ),
+    ]);
+  }
 
   // Simulate API delay
   static const Duration _apiDelay = Duration(milliseconds: 500);
@@ -24,7 +63,8 @@ class ProjectRepository {
     return all
         .where(
           (p) =>
-              p.name.toLowerCase().contains(query.toLowerCase()) || p.code.toLowerCase().contains(query.toLowerCase()),
+              p.name.toLowerCase().contains(query.toLowerCase()) ||
+              p.code.toLowerCase().contains(query.toLowerCase()),
         )
         .toList();
   }

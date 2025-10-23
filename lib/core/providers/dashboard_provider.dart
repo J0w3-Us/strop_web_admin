@@ -14,49 +14,87 @@ class DashboardProvider extends ChangeNotifier {
 
   // Getters para acceso de solo lectura
   List<Project> get projects => List.unmodifiable(_projects);
+  // Currently selected project id for UI filters. null means 'Vista Global'.
+  String? _selectedProjectId;
+  String? get selectedProjectId => _selectedProjectId;
+  Project? get selectedProject {
+    if (_selectedProjectId == null) return null;
+    try {
+      return _projects.firstWhere((p) => p.id == _selectedProjectId);
+    } catch (_) {
+      return null;
+    }
+  }
+
   List<Incident> get incidents => List.unmodifiable(_incidents);
   double get totalBudget => _totalBudget;
   double get totalExpenses => _totalExpenses;
   Map<String, double> get monthlyProgress => Map.unmodifiable(_monthlyProgress);
 
   // Estadísticas calculadas
-  int get activeProjectsCount => _projects.where((p) => p.status == ProjectStatus.inProgress).length;
+  int get activeProjectsCount =>
+      _projects.where((p) => p.status == ProjectStatus.inProgress).length;
 
   int get totalProjectsCount => _projects.length;
 
-  int get openIncidentsCount => _incidents.where((i) => i.status == IncidentStatus.open).length;
+  int get openIncidentsCount =>
+      _incidents.where((i) => i.status == IncidentStatus.open).length;
 
   // Breakdown by severity
   int get criticalIncidentsCount => _incidents
       .where((i) => i.priority == IncidentPriority.critical)
-      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .where(
+        (i) =>
+            i.status == IncidentStatus.open ||
+            i.status == IncidentStatus.inProgress,
+      )
       .length;
 
   int get highIncidentsCount => _incidents
       .where((i) => i.priority == IncidentPriority.high)
-      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .where(
+        (i) =>
+            i.status == IncidentStatus.open ||
+            i.status == IncidentStatus.inProgress,
+      )
       .length;
 
   int get mediumIncidentsCount => _incidents
       .where((i) => i.priority == IncidentPriority.medium)
-      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .where(
+        (i) =>
+            i.status == IncidentStatus.open ||
+            i.status == IncidentStatus.inProgress,
+      )
       .length;
 
   int get lowIncidentsCount => _incidents
       .where((i) => i.priority == IncidentPriority.low)
-      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .where(
+        (i) =>
+            i.status == IncidentStatus.open ||
+            i.status == IncidentStatus.inProgress,
+      )
       .length;
 
   int get pendingActionsCount {
     // Ejemplo: contar proyectos pendientes de aprobación o incidentes críticos
     return _projects.where((p) => p.status == ProjectStatus.planned).length +
-        _incidents.where((i) => i.priority == IncidentPriority.critical && i.status != IncidentStatus.resolved).length;
+        _incidents
+            .where(
+              (i) =>
+                  i.priority == IncidentPriority.critical &&
+                  i.status != IncidentStatus.resolved,
+            )
+            .length;
   }
 
   double get generalProgress {
     if (_projects.isEmpty) return 0.0;
     // Calcular progreso promedio de proyectos activos
-    final activeProjects = _projects.where((p) => p.status == ProjectStatus.inProgress).toList();
+    final activeProjects = _projects
+        .where((p) => p.status == ProjectStatus.inProgress)
+        .toList();
     if (activeProjects.isEmpty) return 0.0;
     // Por ahora retornamos un valor fijo, se puede mejorar con progreso real por proyecto
     return 0.75;
@@ -147,6 +185,17 @@ class DashboardProvider extends ChangeNotifier {
   void syncProjects(List<Project> projectsList) {
     _projects = List.from(projectsList);
     _totalBudget = projectsList.length * 100000.0; // simulado
+    // If the previously selected project id no longer exists, reset selection
+    if (_selectedProjectId != null &&
+        !_projects.any((p) => p.id == _selectedProjectId)) {
+      _selectedProjectId = null;
+    }
+    notifyListeners();
+  }
+
+  /// Seleccionar proyecto para filtrar vistas del dashboard (null = vista global)
+  void setSelectedProject(String? projectId) {
+    _selectedProjectId = projectId;
     notifyListeners();
   }
 

@@ -5,6 +5,7 @@ import 'package:strop_admin_panel/feactures/dashboard/screens/dashboard_screen.d
 import 'package:strop_admin_panel/feactures/layout/screens/main_layout_screen.dart';
 import 'package:strop_admin_panel/feactures/projects/screens/project_list_screen.dart';
 import 'package:strop_admin_panel/feactures/projects/screens/project_detail_screen.dart';
+import 'package:strop_admin_panel/feactures/projects/screens/project_detail_view_screen.dart';
 import 'package:strop_admin_panel/feactures/settings/screens/account_settings_screen.dart';
 
 /// Configuración central del enrutador usando go_router
@@ -18,24 +19,36 @@ class AppRouter {
       GoRoute(
         path: '/login',
         name: 'login',
-        builder: (BuildContext context, GoRouterState state) => const LoginScreen(),
+        builder: (BuildContext context, GoRouterState state) =>
+            const LoginScreen(),
       ),
 
       // App shell con rutas anidadas
       ShellRoute(
-        builder: (context, state, child) => MainLayoutScreen(location: state.uri.toString(), child: child),
+        builder: (context, state, child) =>
+            MainLayoutScreen(location: state.uri.toString(), child: child),
         routes: [
-          GoRoute(path: '/app/dashboard', name: 'dashboard', builder: (context, state) => const DashboardScreen()),
+          GoRoute(
+            path: '/app/dashboard',
+            name: 'dashboard',
+            builder: (context, state) => const DashboardScreen(),
+          ),
           GoRoute(
             path: '/app/projects',
             name: 'projects',
             builder: (context, state) => const ProjectListScreen(),
             routes: [
-              GoRoute(path: 'new', name: 'project-new', builder: (context, state) => const ProjectDetailScreen()),
               GoRoute(
                 path: ':id',
                 name: 'project-detail',
-                builder: (context, state) => ProjectDetailScreen(id: state.pathParameters['id']),
+                builder: (context, state) =>
+                    ProjectDetailViewScreen(id: state.pathParameters['id']!),
+              ),
+              GoRoute(
+                path: ':id/edit',
+                name: 'project-edit',
+                builder: (context, state) =>
+                    ProjectDetailScreen(id: state.pathParameters['id']),
               ),
             ],
           ),
@@ -43,15 +56,21 @@ class AppRouter {
           GoRoute(
             path: '/app/incidents',
             name: 'incidents',
-            builder: (context, state) => const _PlaceholderScreen(title: 'Incidencias'),
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Incidencias'),
           ),
           GoRoute(
             path: '/app/authorizations',
             name: 'authorizations',
-            builder: (context, state) => const _PlaceholderScreen(title: 'Autorizaciones'),
+            builder: (context, state) =>
+                const _PlaceholderScreen(title: 'Autorizaciones'),
           ),
           // Ruta de configuración de cuenta
-          GoRoute(path: '/app/settings', name: 'settings', builder: (context, state) => const AccountSettingsScreen()),
+          GoRoute(
+            path: '/app/settings',
+            name: 'settings',
+            builder: (context, state) => const AccountSettingsScreen(),
+          ),
         ],
       ),
     ],
@@ -69,7 +88,11 @@ class _PlaceholderScreen extends StatelessWidget {
       body: Center(
         child: Text(
           '$title (en construcción)',
-          style: const TextStyle(fontSize: 20, color: Color(0xFF0A2C52), fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontSize: 20,
+            color: Color(0xFF0A2C52),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
