@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:strop_admin_panel/core/providers/team_provider.dart';
 
 // Esta pantalla será responsable de mostrar la lista de usuarios
 // y de lanzar el diálogo para crear uno nuevo.
@@ -11,16 +13,19 @@ class TeamScreen extends StatefulWidget {
 }
 
 class _TeamScreenState extends State<TeamScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load users from provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TeamProvider>().load();
+    });
+  }
 
-  // En el futuro, esta lista vendrá de nuestro gestor de estado (Provider/BLoC)
-  final List<dynamic> _users = []; 
-
-  // Esta función encapsula toda la lógica y UI para el formulario de creación
   void _showAddUserDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
-        // Usamos un widget separado para el formulario para mantener este archivo limpio
         return const _AddUserDialog();
       },
     );
@@ -35,25 +40,34 @@ class _TeamScreenState extends State<TeamScreen> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
-      // Mostramos un mensaje si la lista está vacía, o la lista si tiene usuarios
-      body: _users.isEmpty
-          ? const Center(
-              child: Text(
-                'Aún no hay usuarios en el sistema.',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            )
-          : ListView.builder(
-              itemCount: _users.length,
-              itemBuilder: (context, index) {
-                // TODO: Reemplazar esto con un widget de tarjeta de usuario real
-                return ListTile(
-                  leading: const Icon(Icons.person),
-                  title: Text('Usuario ${index + 1}'),
-                  subtitle: const Text('Rol: Residente de Obra'),
-                );
-              },
-            ),
+      // Mostramos la lista desde el provider
+      body: Consumer<TeamProvider>(
+        builder: (context, team, _) {
+          final users = team.users;
+          if (users.isEmpty) {
+            return const Center(
+              child: Text('Aún no hay usuarios en el sistema.', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            );
+          }
+          return ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (context, index) {
+              final u = users[index];
+              return ListTile(
+                leading: const Icon(Icons.person),
+                title: Text(u.name),
+                subtitle: Text(u.role ?? 'Residente'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () async {
+                    await team.delete(u.id);
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddUserDialog(context),
         // El color del botón también lo define nuestro AppTheme
@@ -63,7 +77,6 @@ class _TeamScreenState extends State<TeamScreen> {
     );
   }
 }
-
 
 // --- Widget Privado para el Diálogo del Formulario ---
 // Lo ponemos aquí para no crear un archivo nuevo para un widget que
@@ -77,6 +90,18 @@ class _AddUserDialog extends StatefulWidget {
 }
 
 class _AddUserDialogState extends State<_AddUserDialog> {
+  final _nameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _roleCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _roleCtrl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -86,17 +111,19 @@ class _AddUserDialogState extends State<_AddUserDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
+              controller: _nameCtrl,
               decoration: const InputDecoration(labelText: 'Nombre Completo'),
             ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: _emailCtrl,
               decoration: const InputDecoration(labelText: 'Correo Electrónico'),
               keyboardType: TextInputType.emailAddress,
             ),
-             const SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Contraseña Temporal'),
-              obscureText: true,
+              controller: _roleCtrl,
+              decoration: const InputDecoration(labelText: 'Rol (ej. Residente)'),
             ),
           ],
         ),
@@ -110,7 +137,13 @@ class _AddUserDialogState extends State<_AddUserDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            // TODO: Lógica para validar y guardar el usuario
+            final name = _nameCtrl.text.trim();
+            final email = _emailCtrl.text.trim();
+            final role = _roleCtrl.text.trim();
+            if (name.isEmpty) return;
+            // Crear usuario via provider
+            final team = context.read<TeamProvider>();
+            team.create(name, email: email.isEmpty ? null : email, role: role.isEmpty ? null : role);
             Navigator.of(context).pop();
           },
           child: const Text('Guardar Usuario'),

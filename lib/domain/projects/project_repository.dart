@@ -24,8 +24,7 @@ class ProjectRepository {
     return all
         .where(
           (p) =>
-              p.name.toLowerCase().contains(query.toLowerCase()) ||
-              p.code.toLowerCase().contains(query.toLowerCase()),
+              p.name.toLowerCase().contains(query.toLowerCase()) || p.code.toLowerCase().contains(query.toLowerCase()),
         )
         .toList();
   }

@@ -38,9 +38,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       setState(() => _isEmailValidated = true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Código de verificación enviado a ${_newEmailController.text}',
-          ),
+          content: Text('Código de verificación enviado a ${_newEmailController.text}'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
@@ -54,12 +52,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
           content: Text(
             'Se ha enviado un código de verificación a:\n${_newEmailController.text}\n\nPor favor, revisa tu bandeja de entrada.',
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Entendido'),
-            ),
-          ],
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Entendido'))],
         ),
       );
     }
@@ -94,9 +87,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                 Navigator.of(context).pop();
                 context.go('/login');
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF8800),
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF8800)),
               child: const Text('Iniciar Sesión'),
             ),
           ],
@@ -117,19 +108,13 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
             // Título
             const Text(
               'Configuración de Cuenta',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0A2C52),
-              ),
+              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF0A2C52)),
             ),
             const SizedBox(height: 32),
 
             // Sección de Validación de Email
             Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Form(
@@ -139,19 +124,11 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
-                            Icons.email_outlined,
-                            color: Color(0xFF0A2C52),
-                            size: 28,
-                          ),
+                          const Icon(Icons.email_outlined, color: Color(0xFF0A2C52), size: 28),
                           const SizedBox(width: 12),
                           const Text(
                             'Validación de Email',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF0A2C52),
-                            ),
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0A2C52)),
                           ),
                         ],
                       ),
@@ -174,9 +151,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa un email';
                           }
-                          final emailRegex = RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                          );
+                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                           if (!emailRegex.hasMatch(value)) {
                             return 'Ingresa un email válido';
                           }
@@ -193,10 +168,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0A2C52),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                             ),
                           ),
                           if (_isEmailValidated) ...[
@@ -207,10 +179,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                                 SizedBox(width: 8),
                                 Text(
                                   'Email validado',
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -226,9 +195,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
             // Sección de Cambio de Contraseña
             Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Form(
@@ -238,19 +205,11 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(
-                            Icons.lock_outlined,
-                            color: Color(0xFF0A2C52),
-                            size: 28,
-                          ),
+                          const Icon(Icons.lock_outlined, color: Color(0xFF0A2C52), size: 28),
                           const SizedBox(width: 12),
                           const Text(
                             'Cambiar Contraseña',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF0A2C52),
-                            ),
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF0A2C52)),
                           ),
                         ],
                       ),
@@ -270,15 +229,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                           prefixIcon: const Icon(Icons.lock_outline),
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureCurrentPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscureCurrentPassword =
-                                  !_obscureCurrentPassword,
-                            ),
+                            icon: Icon(_obscureCurrentPassword ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => _obscureCurrentPassword = !_obscureCurrentPassword),
                           ),
                         ),
                         validator: (value) {
@@ -299,14 +251,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                           prefixIcon: const Icon(Icons.vpn_key),
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureNewPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscureNewPassword = !_obscureNewPassword,
-                            ),
+                            icon: Icon(_obscureNewPassword ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => _obscureNewPassword = !_obscureNewPassword),
                           ),
                         ),
                         validator: (value) {
@@ -330,15 +276,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                           prefixIcon: const Icon(Icons.check_circle_outline),
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscureConfirmPassword =
-                                  !_obscureConfirmPassword,
-                            ),
+                            icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                            onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                           ),
                         ),
                         validator: (value) {
@@ -356,10 +295,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                       // Indicador de seguridad de contraseña
                       Container(
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
                         child: const Row(
                           children: [
                             Icon(Icons.info_outline, color: Colors.blue),
@@ -367,10 +303,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                             Expanded(
                               child: Text(
                                 'La contraseña debe tener al menos 8 caracteres.',
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 13,
-                                ),
+                                style: TextStyle(color: Colors.blue, fontSize: 13),
                               ),
                             ),
                           ],

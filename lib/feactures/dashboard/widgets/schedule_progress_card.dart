@@ -25,9 +25,7 @@ class _ScheduleProgressCardState extends State<ScheduleProgressCard> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: widget.onTap != null
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: widget.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
@@ -52,30 +50,16 @@ class _ScheduleProgressCardState extends State<ScheduleProgressCard> {
               children: [
                 const Text(
                   'Progreso del Cronograma',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF666666),
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF666666)),
                 ),
                 const SizedBox(height: 16),
                 AnimatedDefaultTextStyle(
                   duration: const Duration(milliseconds: 200),
-                  style: TextStyle(
-                    fontSize: _isHovered ? 34 : 32,
-                    fontWeight: FontWeight.bold,
-                    color: widget.color,
-                  ),
+                  style: TextStyle(fontSize: _isHovered ? 34 : 32, fontWeight: FontWeight.bold, color: widget.color),
                   child: Text(widget.status),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  widget.subtitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF666666),
-                  ),
-                ),
+                Text(widget.subtitle, style: const TextStyle(fontSize: 14, color: Color(0xFF666666))),
               ],
             ),
           ),

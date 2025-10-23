@@ -54,15 +54,11 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
       await ProjectRepository.instance.delete(id);
       _loadProjects(); // Refresh list and sync provider
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Proyecto eliminado')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Proyecto eliminado')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error al eliminar: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al eliminar: $e')));
       }
     }
   }
@@ -81,20 +77,14 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                 const Expanded(
                   child: Text(
                     'Proyectos',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0A2C52),
-                    ),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF0A2C52)),
                   ),
                 ),
                 FilledButton.icon(
                   onPressed: () => context.go('/app/projects/new'),
                   icon: const Icon(Icons.add),
                   label: const Text('Nuevo Proyecto'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF8800),
-                  ),
+                  style: FilledButton.styleFrom(backgroundColor: const Color(0xFFFF8800)),
                 ),
               ],
             ),
@@ -112,9 +102,7 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
             const SizedBox(height: 16),
             Expanded(
               child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: FutureBuilder<List<Project>>(
                   future: _projectsFuture,
                   builder: (context, snapshot) {
@@ -125,8 +113,25 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                     } else {
                       final projects = snapshot.data ?? [];
                       if (projects.isEmpty) {
-                        return const Center(child: Text('Sin proyectos'));
+                        return Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Sin proyectos', style: TextStyle(fontSize: 16, color: Color(0xFF666666))),
+                              const SizedBox(height: 12),
+                              FilledButton.icon(
+                                onPressed: () => context.go('/app/projects/new'),
+                                icon: const Icon(Icons.add),
+                                label: const Text('Crear primer proyecto'),
+                                style: FilledButton.styleFrom(backgroundColor: const Color(0xFFFF8800)),
+                              ),
+                            ],
+                          ),
+                        );
                       }
+
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
@@ -145,41 +150,18 @@ class _ProjectListScreenState extends State<ProjectListScreen> {
                                     DataCell(Text(p.code)),
                                     DataCell(Text(p.name)),
                                     DataCell(Text(p.status.name)),
-                                    DataCell(
-                                      Text(
-                                        p.startDate
-                                                ?.toIso8601String()
-                                                .split('T')
-                                                .first ??
-                                            '-',
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        p.endDate
-                                                ?.toIso8601String()
-                                                .split('T')
-                                                .first ??
-                                            '-',
-                                      ),
-                                    ),
+                                    DataCell(Text(p.startDate?.toIso8601String().split('T').first ?? '-')),
+                                    DataCell(Text(p.endDate?.toIso8601String().split('T').first ?? '-')),
                                     DataCell(
                                       Row(
                                         children: [
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.visibility_outlined,
-                                            ),
-                                            onPressed: () => context.go(
-                                              '/app/projects/${p.id}',
-                                            ),
+                                            icon: const Icon(Icons.visibility_outlined),
+                                            onPressed: () => context.go('/app/projects/${p.id}'),
                                           ),
                                           IconButton(
-                                            icon: const Icon(
-                                              Icons.delete_outline,
-                                            ),
-                                            onPressed: () =>
-                                                _deleteProject(p.id),
+                                            icon: const Icon(Icons.delete_outline),
+                                            onPressed: () => _deleteProject(p.id),
                                           ),
                                         ],
                                       ),

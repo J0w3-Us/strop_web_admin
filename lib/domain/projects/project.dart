@@ -39,10 +39,7 @@ class Project {
 
   static Project fromMap(Map map) {
     String statusStr = (map['status'] ?? 'planned').toString();
-    final status = ProjectStatus.values.firstWhere(
-      (e) => e.name == statusStr,
-      orElse: () => ProjectStatus.planned,
-    );
+    final status = ProjectStatus.values.firstWhere((e) => e.name == statusStr, orElse: () => ProjectStatus.planned);
     DateTime? parseDate(dynamic v) {
       if (v == null) return null;
       try {

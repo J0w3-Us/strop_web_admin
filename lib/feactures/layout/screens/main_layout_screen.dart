@@ -3,11 +3,7 @@ import 'package:go_router/go_router.dart';
 
 /// App Shell profesional con Top App Bar, sidebar colapsable, breadcrumbs y Drawer en pantallas chicas
 class MainLayoutScreen extends StatefulWidget {
-  const MainLayoutScreen({
-    super.key,
-    required this.child,
-    required this.location,
-  });
+  const MainLayoutScreen({super.key, required this.child, required this.location});
 
   final Widget child;
   final String location;
@@ -19,11 +15,9 @@ class MainLayoutScreen extends StatefulWidget {
 class _MainLayoutScreenState extends State<MainLayoutScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _collapsed = true;
-  final TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _searchCtrl.dispose();
     super.dispose();
   }
 
@@ -40,26 +34,10 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         final sidebarWidth = collapsed ? 72.0 : 240.0;
 
         final navItems = <_NavItemData>[
-          _NavItemData(
-            icon: Icons.dashboard_outlined,
-            label: 'Dashboard',
-            route: '/app/dashboard',
-          ),
-          _NavItemData(
-            icon: Icons.folder_open_outlined,
-            label: 'Proyectos',
-            route: '/app/projects',
-          ),
-          _NavItemData(
-            icon: Icons.bug_report_outlined,
-            label: 'Incidencias',
-            route: '/app/incidents',
-          ),
-          _NavItemData(
-            icon: Icons.verified_outlined,
-            label: 'Autorizaciones',
-            route: '/app/authorizations',
-          ),
+          _NavItemData(icon: Icons.dashboard_outlined, label: 'Dashboard', route: '/app/dashboard'),
+          _NavItemData(icon: Icons.folder_open_outlined, label: 'Proyectos', route: '/app/projects'),
+          _NavItemData(icon: Icons.bug_report_outlined, label: 'Incidencias', route: '/app/incidents'),
+          _NavItemData(icon: Icons.verified_outlined, label: 'Autorizaciones', route: '/app/authorizations'),
         ];
 
         Widget topBar() {
@@ -69,11 +47,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
+                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2)),
               ],
             ),
             child: Row(
@@ -97,39 +71,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                       ),
                     ),
                   ),
-                if (!isNarrow)
-                  Expanded(
-                    child: Container(
-                      height: 38,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F6FA),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        controller: _searchCtrl,
-                        textInputAction: TextInputAction.search,
-                        onSubmitted: (v) {
-                          final q = v.trim();
-                          if (q.isNotEmpty) {
-                            context.go(
-                              '/app/projects?q=${Uri.encodeComponent(q)}',
-                            );
-                          }
-                        },
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Color(0xFF8A9BB5),
-                          ),
-                          hintText: 'Buscar...',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  )
-                else
-                  const Spacer(),
+                const Spacer(),
                 PopupMenuButton<int>(
                   tooltip: 'Notificaciones',
                   icon: const Icon(Icons.notifications_outlined),
@@ -145,14 +87,8 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                     }
                   },
                   itemBuilder: (context) => const [
-                    PopupMenuItem(
-                      value: 1,
-                      child: Text('2 nuevas autorizaciones'),
-                    ),
-                    PopupMenuItem(
-                      value: 2,
-                      child: Text('1 incidencia abierta'),
-                    ),
+                    PopupMenuItem(value: 1, child: Text('2 nuevas autorizaciones')),
+                    PopupMenuItem(value: 2, child: Text('1 incidencia abierta')),
                     PopupMenuDivider(),
                     PopupMenuItem(value: 0, child: Text('Ver todas')),
                   ],
@@ -170,15 +106,9 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                   },
                   itemBuilder: (context) => const [
                     PopupMenuItem(value: 'profile', child: Text('Perfil')),
-                    PopupMenuItem(
-                      value: 'settings',
-                      child: Text('Configuración'),
-                    ),
+                    PopupMenuItem(value: 'settings', child: Text('Configuración')),
                     PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: 'logout',
-                      child: Text('Cerrar sesión'),
-                    ),
+                    PopupMenuItem(value: 'logout', child: Text('Cerrar sesión')),
                   ],
                   child: const CircleAvatar(
                     radius: 16,
@@ -202,28 +132,18 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                   if (i > 0)
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 6),
-                      child: Icon(
-                        Icons.chevron_right,
-                        size: 18,
-                        color: Color(0xFF8A9BB5),
-                      ),
+                      child: Icon(Icons.chevron_right, size: 18, color: Color(0xFF8A9BB5)),
                     ),
                   if (crumbs[i].route != null)
                     InkWell(
                       onTap: () => context.go(crumbs[i].route!),
                       child: Text(
                         crumbs[i].label,
-                        style: const TextStyle(
-                          color: Color(0xFF0A2C52),
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: const TextStyle(color: Color(0xFF0A2C52), fontWeight: FontWeight.w600),
                       ),
                     )
                   else
-                    Text(
-                      crumbs[i].label,
-                      style: const TextStyle(color: Color(0xFF8A9BB5)),
-                    ),
+                    Text(crumbs[i].label, style: const TextStyle(color: Color(0xFF8A9BB5))),
                 ],
               ],
             ),
@@ -237,15 +157,11 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             color: const Color(0xFF0A2C52),
             child: SafeArea(
               child: Column(
-                crossAxisAlignment: collapsed
-                    ? CrossAxisAlignment.center
-                    : CrossAxisAlignment.stretch,
+                crossAxisAlignment: collapsed ? CrossAxisAlignment.center : CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 12),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: collapsed ? 0 : 16.0,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: collapsed ? 0 : 16.0),
                     child: collapsed
                         ? const Text(
                             'S',
@@ -288,10 +204,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                   ),
                   if (!isNarrow)
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: collapsed ? 0 : 8,
-                        vertical: 8,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: collapsed ? 0 : 8, vertical: 8),
                       child: _SideNavItem(
                         icon: Icons.logout,
                         label: 'Cerrar sesión',
@@ -319,9 +232,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
         // BODY
         return Scaffold(
           key: _scaffoldKey,
-          drawer: isNarrow
-              ? Drawer(width: 280, child: sidebar(inDrawer: true))
-              : null,
+          drawer: isNarrow ? Drawer(width: 280, child: sidebar(inDrawer: true)) : null,
           body: Container(
             color: const Color(0xFFF5F7FB),
             child: showSidebar
@@ -338,9 +249,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                           children: [
                             topBar(),
                             breadcrumbs(),
-                            Expanded(
-                              child: SafeArea(top: false, child: widget.child),
-                            ),
+                            Expanded(child: SafeArea(top: false, child: widget.child)),
                           ],
                         ),
                       ),
@@ -351,9 +260,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                     children: [
                       topBar(),
                       breadcrumbs(),
-                      Expanded(
-                        child: SafeArea(top: false, child: widget.child),
-                      ),
+                      Expanded(child: SafeArea(top: false, child: widget.child)),
                     ],
                   ),
           ),
@@ -384,11 +291,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
 }
 
 class _NavItemData {
-  const _NavItemData({
-    required this.icon,
-    required this.label,
-    required this.route,
-  });
+  const _NavItemData({required this.icon, required this.label, required this.route});
   final IconData icon;
   final String label;
   final String route;
@@ -436,20 +339,13 @@ class _SideNavItemState extends State<_SideNavItem> {
       child: InkWell(
         onTap: widget.onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: widget.collapsed ? 0.0 : 12.0,
-            vertical: 10.0,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: widget.collapsed ? 0.0 : 12.0, vertical: 10.0),
           decoration: BoxDecoration(
             color: bg,
-            border: widget.selected
-                ? const Border(left: BorderSide(color: Colors.white, width: 2))
-                : null,
+            border: widget.selected ? const Border(left: BorderSide(color: Colors.white, width: 2)) : null,
           ),
           child: widget.collapsed
-              ? Center(
-                  child: Icon(widget.icon, color: Colors.white70, size: 20),
-                )
+              ? Center(child: Icon(widget.icon, color: Colors.white70, size: 20))
               : Row(
                   children: [
                     Icon(widget.icon, color: Colors.white70),
@@ -458,10 +354,7 @@ class _SideNavItemState extends State<_SideNavItem> {
                       child: Text(
                         widget.label,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ),
                   ],

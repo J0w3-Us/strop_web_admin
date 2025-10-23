@@ -2,14 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Widget reutilizable para mostrar una métrica con título, valor y acción opcional
 class MetricCard extends StatefulWidget {
-  const MetricCard({
-    super.key,
-    required this.title,
-    required this.value,
-    this.subtitle,
-    this.actionButton,
-    this.onTap,
-  });
+  const MetricCard({super.key, required this.title, required this.value, this.subtitle, this.actionButton, this.onTap});
 
   final String title;
   final String value;
@@ -27,9 +20,7 @@ class _MetricCardState extends State<MetricCard> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: widget.onTap != null
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: widget.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
@@ -58,11 +49,7 @@ class _MetricCardState extends State<MetricCard> {
                     Expanded(
                       child: Text(
                         widget.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF666666),
-                        ),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF666666)),
                       ),
                     ),
                     if (widget.actionButton != null) widget.actionButton!,
@@ -71,21 +58,11 @@ class _MetricCardState extends State<MetricCard> {
                 const SizedBox(height: 12),
                 Text(
                   widget.value,
-                  style: const TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFFF8800),
-                  ),
+                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFFFF8800)),
                 ),
                 if (widget.subtitle != null) ...[
                   const SizedBox(height: 4),
-                  Text(
-                    widget.subtitle!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF999999),
-                    ),
-                  ),
+                  Text(widget.subtitle!, style: const TextStyle(fontSize: 14, color: Color(0xFF999999))),
                 ],
               ],
             ),

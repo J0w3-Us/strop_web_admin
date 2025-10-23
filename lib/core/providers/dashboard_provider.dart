@@ -7,10 +7,10 @@ import 'package:strop_admin_panel/domain/incidents/incident.dart';
 class DashboardProvider extends ChangeNotifier {
   // Estado de la aplicación
   List<Project> _projects = [];
-  List<Incident> _incidents = [];
+  final List<Incident> _incidents = [];
   double _totalBudget = 0.0;
   double _totalExpenses = 0.0;
-  Map<String, double> _monthlyProgress = {};
+  final Map<String, double> _monthlyProgress = {};
 
   // Getters para acceso de solo lectura
   List<Project> get projects => List.unmodifiable(_projects);
@@ -20,32 +20,43 @@ class DashboardProvider extends ChangeNotifier {
   Map<String, double> get monthlyProgress => Map.unmodifiable(_monthlyProgress);
 
   // Estadísticas calculadas
-  int get activeProjectsCount =>
-      _projects.where((p) => p.status == ProjectStatus.inProgress).length;
+  int get activeProjectsCount => _projects.where((p) => p.status == ProjectStatus.inProgress).length;
 
   int get totalProjectsCount => _projects.length;
 
-  int get openIncidentsCount =>
-      _incidents.where((i) => i.status == IncidentStatus.open).length;
+  int get openIncidentsCount => _incidents.where((i) => i.status == IncidentStatus.open).length;
+
+  // Breakdown by severity
+  int get criticalIncidentsCount => _incidents
+      .where((i) => i.priority == IncidentPriority.critical)
+      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .length;
+
+  int get highIncidentsCount => _incidents
+      .where((i) => i.priority == IncidentPriority.high)
+      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .length;
+
+  int get mediumIncidentsCount => _incidents
+      .where((i) => i.priority == IncidentPriority.medium)
+      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .length;
+
+  int get lowIncidentsCount => _incidents
+      .where((i) => i.priority == IncidentPriority.low)
+      .where((i) => i.status == IncidentStatus.open || i.status == IncidentStatus.inProgress)
+      .length;
 
   int get pendingActionsCount {
     // Ejemplo: contar proyectos pendientes de aprobación o incidentes críticos
     return _projects.where((p) => p.status == ProjectStatus.planned).length +
-        _incidents
-            .where(
-              (i) =>
-                  i.priority == IncidentPriority.critical &&
-                  i.status != IncidentStatus.resolved,
-            )
-            .length;
+        _incidents.where((i) => i.priority == IncidentPriority.critical && i.status != IncidentStatus.resolved).length;
   }
 
   double get generalProgress {
     if (_projects.isEmpty) return 0.0;
     // Calcular progreso promedio de proyectos activos
-    final activeProjects = _projects
-        .where((p) => p.status == ProjectStatus.inProgress)
-        .toList();
+    final activeProjects = _projects.where((p) => p.status == ProjectStatus.inProgress).toList();
     if (activeProjects.isEmpty) return 0.0;
     // Por ahora retornamos un valor fijo, se puede mejorar con progreso real por proyecto
     return 0.75;

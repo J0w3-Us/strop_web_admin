@@ -8,11 +8,7 @@ void main() async {
 
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => DashboardProvider()..loadInitialData(),
-        ),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => DashboardProvider()..loadInitialData())],
       child: const MyApp(),
     ),
   );

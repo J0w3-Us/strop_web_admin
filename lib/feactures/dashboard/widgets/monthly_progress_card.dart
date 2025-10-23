@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Card con gráfico de barras de avance mensual - Optimizado para web
 class MonthlyProgressCard extends StatefulWidget {
-  const MonthlyProgressCard({
-    super.key,
-    required this.monthlyData,
-    this.onTap,
-    this.onBarTap,
-  });
+  const MonthlyProgressCard({super.key, required this.monthlyData, this.onTap, this.onBarTap});
 
   final List<MonthlyProgress> monthlyData;
   final VoidCallback? onTap;
@@ -25,14 +20,10 @@ class _MonthlyProgressCardState extends State<MonthlyProgressCard> {
   Widget build(BuildContext context) {
     final maxValue = widget.monthlyData.isEmpty
         ? 1.0
-        : widget.monthlyData
-              .map((e) => e.value)
-              .reduce((a, b) => a > b ? a : b);
+        : widget.monthlyData.map((e) => e.value).reduce((a, b) => a > b ? a : b);
 
     return MouseRegion(
-      cursor: widget.onTap != null
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: widget.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
@@ -57,11 +48,7 @@ class _MonthlyProgressCardState extends State<MonthlyProgressCard> {
               children: [
                 const Text(
                   'Avance Mensual',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF666666),
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF666666)),
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -72,10 +59,7 @@ class _MonthlyProgressCardState extends State<MonthlyProgressCard> {
                     children: widget.monthlyData.asMap().entries.map((entry) {
                       final index = entry.key;
                       final data = entry.value;
-                      final heightFactor = (data.value / maxValue).clamp(
-                        0.1,
-                        1.0,
-                      );
+                      final heightFactor = (data.value / maxValue).clamp(0.1, 1.0);
                       final isCurrent = data.isCurrent;
                       final isHovered = _hoveredBarIndex == index;
 
@@ -83,55 +67,30 @@ class _MonthlyProgressCardState extends State<MonthlyProgressCard> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: MouseRegion(
-                            cursor: widget.onBarTap != null
-                                ? SystemMouseCursors.click
-                                : SystemMouseCursors.basic,
-                            onEnter: (_) =>
-                                setState(() => _hoveredBarIndex = index),
-                            onExit: (_) =>
-                                setState(() => _hoveredBarIndex = null),
+                            cursor: widget.onBarTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
+                            onEnter: (_) => setState(() => _hoveredBarIndex = index),
+                            onExit: (_) => setState(() => _hoveredBarIndex = null),
                             child: GestureDetector(
-                              onTap: widget.onBarTap != null
-                                  ? () => widget.onBarTap!(data)
-                                  : null,
+                              onTap: widget.onBarTap != null ? () => widget.onBarTap!(data) : null,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   TweenAnimationBuilder<double>(
-                                    duration: Duration(
-                                      milliseconds: 1000 + (index * 100),
-                                    ),
-                                    tween: Tween<double>(
-                                      begin: 0.0,
-                                      end: 140 * heightFactor,
-                                    ),
+                                    duration: Duration(milliseconds: 1000 + (index * 100)),
+                                    tween: Tween<double>(begin: 0.0, end: 140 * heightFactor),
                                     builder: (context, animatedHeight, child) {
                                       return AnimatedContainer(
-                                        duration: const Duration(
-                                          milliseconds: 200,
-                                        ),
+                                        duration: const Duration(milliseconds: 200),
                                         height: animatedHeight,
                                         decoration: BoxDecoration(
-                                          color: isCurrent
-                                              ? const Color(0xFFFF8800)
-                                              : const Color(0xFFFFD4A3),
-                                          borderRadius: BorderRadius.circular(
-                                            4,
-                                          ),
+                                          color: isCurrent ? const Color(0xFFFF8800) : const Color(0xFFFFD4A3),
+                                          borderRadius: BorderRadius.circular(4),
                                           boxShadow: isHovered
                                               ? [
                                                   BoxShadow(
                                                     color:
-                                                        (isCurrent
-                                                                ? const Color(
-                                                                    0xFFFF8800,
-                                                                  )
-                                                                : const Color(
-                                                                    0xFFFFD4A3,
-                                                                  ))
-                                                            .withValues(
-                                                              alpha: 0.5,
-                                                            ),
+                                                        (isCurrent ? const Color(0xFFFF8800) : const Color(0xFFFFD4A3))
+                                                            .withValues(alpha: 0.5),
                                                     blurRadius: 8,
                                                     offset: const Offset(0, 2),
                                                   ),
@@ -146,12 +105,8 @@ class _MonthlyProgressCardState extends State<MonthlyProgressCard> {
                                     data.month,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: isCurrent || isHovered
-                                          ? const Color(0xFF0A2C52)
-                                          : const Color(0xFF666666),
-                                      fontWeight: isCurrent || isHovered
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
+                                      color: isCurrent || isHovered ? const Color(0xFF0A2C52) : const Color(0xFF666666),
+                                      fontWeight: isCurrent || isHovered ? FontWeight.bold : FontWeight.normal,
                                     ),
                                   ),
                                 ],
@@ -178,9 +133,5 @@ class MonthlyProgress {
   final double value;
   final bool isCurrent;
 
-  MonthlyProgress({
-    required this.month,
-    required this.value,
-    this.isCurrent = false,
-  });
+  MonthlyProgress({required this.month, required this.value, this.isCurrent = false});
 }

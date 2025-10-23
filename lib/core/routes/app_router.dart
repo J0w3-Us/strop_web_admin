@@ -18,35 +18,24 @@ class AppRouter {
       GoRoute(
         path: '/login',
         name: 'login',
-        builder: (BuildContext context, GoRouterState state) =>
-            const LoginScreen(),
+        builder: (BuildContext context, GoRouterState state) => const LoginScreen(),
       ),
 
       // App shell con rutas anidadas
       ShellRoute(
-        builder: (context, state, child) =>
-            MainLayoutScreen(location: state.uri.toString(), child: child),
+        builder: (context, state, child) => MainLayoutScreen(location: state.uri.toString(), child: child),
         routes: [
-          GoRoute(
-            path: '/app/dashboard',
-            name: 'dashboard',
-            builder: (context, state) => const DashboardScreen(),
-          ),
+          GoRoute(path: '/app/dashboard', name: 'dashboard', builder: (context, state) => const DashboardScreen()),
           GoRoute(
             path: '/app/projects',
             name: 'projects',
             builder: (context, state) => const ProjectListScreen(),
             routes: [
-              GoRoute(
-                path: 'new',
-                name: 'project-new',
-                builder: (context, state) => const ProjectDetailScreen(),
-              ),
+              GoRoute(path: 'new', name: 'project-new', builder: (context, state) => const ProjectDetailScreen()),
               GoRoute(
                 path: ':id',
                 name: 'project-detail',
-                builder: (context, state) =>
-                    ProjectDetailScreen(id: state.pathParameters['id']),
+                builder: (context, state) => ProjectDetailScreen(id: state.pathParameters['id']),
               ),
             ],
           ),
@@ -54,21 +43,15 @@ class AppRouter {
           GoRoute(
             path: '/app/incidents',
             name: 'incidents',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Incidencias'),
+            builder: (context, state) => const _PlaceholderScreen(title: 'Incidencias'),
           ),
           GoRoute(
             path: '/app/authorizations',
             name: 'authorizations',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: 'Autorizaciones'),
+            builder: (context, state) => const _PlaceholderScreen(title: 'Autorizaciones'),
           ),
           // Ruta de configuración de cuenta
-          GoRoute(
-            path: '/app/settings',
-            name: 'settings',
-            builder: (context, state) => const AccountSettingsScreen(),
-          ),
+          GoRoute(path: '/app/settings', name: 'settings', builder: (context, state) => const AccountSettingsScreen()),
         ],
       ),
     ],
@@ -86,11 +69,7 @@ class _PlaceholderScreen extends StatelessWidget {
       body: Center(
         child: Text(
           '$title (en construcción)',
-          style: const TextStyle(
-            fontSize: 20,
-            color: Color(0xFF0A2C52),
-            fontWeight: FontWeight.w600,
-          ),
+          style: const TextStyle(fontSize: 20, color: Color(0xFF0A2C52), fontWeight: FontWeight.w600),
         ),
       ),
     );

@@ -20,9 +20,7 @@ void main() {
       final repo = ProjectRepository.instance;
       final id1 = repo.newId();
       final id2 = repo.newId();
-      await repo.upsert(
-        Project(id: id1, code: 'T-1', name: 'Unique Test Project'),
-      );
+      await repo.upsert(Project(id: id1, code: 'T-1', name: 'Unique Test Project'));
       await repo.upsert(Project(id: id2, code: 'T-2', name: 'Another Project'));
 
       final results = await repo.search('Unique');

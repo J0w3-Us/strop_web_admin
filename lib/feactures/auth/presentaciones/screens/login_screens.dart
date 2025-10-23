@@ -20,9 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
           constraints: const BoxConstraints(maxWidth: 400),
           child: Card(
             elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
@@ -33,22 +31,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Bienvenido a Strop',
                     textAlign: TextAlign.center,
                     // Usamos el estilo definido en nuestro tema!
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 24),
                   TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Correo Electrónico',
-                    ),
+                    decoration: const InputDecoration(labelText: 'Correo Electrónico'),
                     keyboardType: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Contraseña'),
-                  ),
+                  TextFormField(obscureText: true, decoration: const InputDecoration(labelText: 'Contraseña')),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     // El estilo viene directamente de nuestro tema!

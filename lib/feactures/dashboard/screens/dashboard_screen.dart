@@ -31,15 +31,9 @@ class DashboardScreen extends StatelessWidget {
         title: Text(title),
         content: Text(content),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF8800),
-              foregroundColor: Colors.white,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF8800), foregroundColor: Colors.white),
             onPressed: () {
               Navigator.of(context).pop();
               _showSnackBar(context, 'Acción ejecutada ✓');
@@ -63,11 +57,7 @@ class DashboardScreen extends StatelessWidget {
             // Título
             const Text(
               'Dashboard',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF0A2C52),
-              ),
+              style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF0A2C52)),
             ),
             const SizedBox(height: 32),
 
@@ -115,9 +105,7 @@ class DashboardScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF8800),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     child: const Text('Ver todas'),
                   ),
@@ -126,7 +114,33 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Primera fila: Avance General, Control de Costos, Incidencias
+            // Mover Incidencias arriba, justo después de Acciones Pendientes
+            Consumer<DashboardProvider>(
+              builder: (context, dashboardProvider, _) {
+                return Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: IncidentCard(
+                        count: dashboardProvider.openIncidentsCount,
+                        subtitle: 'Abiertas',
+                        onTap: () => context.go('/app/incidents'),
+                        critical: dashboardProvider.criticalIncidentsCount,
+                        high: dashboardProvider.highIncidentsCount,
+                        medium: dashboardProvider.mediumIncidentsCount,
+                        low: dashboardProvider.lowIncidentsCount,
+                      ),
+                    ),
+                    // espacio a la derecha para mantener proporción similar a la UI
+                    const SizedBox(width: 16),
+                    Expanded(flex: 2, child: const SizedBox.shrink()),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Primera fila: Avance General y Control de Costos
             LayoutBuilder(
               builder: (context, constraints) {
                 final isWide = constraints.maxWidth >= 900;
@@ -134,10 +148,8 @@ class DashboardScreen extends StatelessWidget {
                 if (isWide) {
                   return Consumer<DashboardProvider>(
                     builder: (context, dashboardProvider, _) {
-                      final progressPercentage =
-                          dashboardProvider.generalProgress * 100;
-                      final budgetUsedPercentage =
-                          dashboardProvider.budgetUsagePercentage * 100;
+                      final progressPercentage = dashboardProvider.generalProgress * 100;
+                      final budgetUsedPercentage = dashboardProvider.budgetUsagePercentage * 100;
 
                       return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,13 +171,10 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             child: CostControlCard(
                               title: 'Control de Costos',
-                              amount:
-                                  '\$${dashboardProvider.totalExpenses.toStringAsFixed(0)}',
+                              amount: '\$${dashboardProvider.totalExpenses.toStringAsFixed(0)}',
                               subtitle: 'Gasto Real',
                               currentValue: dashboardProvider.totalExpenses,
-                              maxValue: dashboardProvider.totalBudget == 0
-                                  ? 1
-                                  : dashboardProvider.totalBudget,
+                              maxValue: dashboardProvider.totalBudget == 0 ? 1 : dashboardProvider.totalBudget,
                               onTap: () => _showDetailDialog(
                                 context,
                                 'Control de Costos',
@@ -176,14 +185,6 @@ class DashboardScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: IncidentCard(
-                              count: dashboardProvider.openIncidentsCount,
-                              subtitle: 'Abiertas',
-                              onTap: () => context.go('/app/incidents'),
-                            ),
-                          ),
                         ],
                       );
                     },
@@ -192,10 +193,8 @@ class DashboardScreen extends StatelessWidget {
 
                 return Consumer<DashboardProvider>(
                   builder: (context, dashboardProvider, _) {
-                    final progressPercentage =
-                        dashboardProvider.generalProgress * 100;
-                    final budgetUsedPercentage =
-                        dashboardProvider.budgetUsagePercentage * 100;
+                    final progressPercentage = dashboardProvider.generalProgress * 100;
+                    final budgetUsedPercentage = dashboardProvider.budgetUsagePercentage * 100;
 
                     return Column(
                       children: [
@@ -213,13 +212,10 @@ class DashboardScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         CostControlCard(
                           title: 'Control de Costos',
-                          amount:
-                              '\$${dashboardProvider.totalExpenses.toStringAsFixed(0)}',
+                          amount: '\$${dashboardProvider.totalExpenses.toStringAsFixed(0)}',
                           subtitle: 'Gasto Real',
                           currentValue: dashboardProvider.totalExpenses,
-                          maxValue: dashboardProvider.totalBudget == 0
-                              ? 1
-                              : dashboardProvider.totalBudget,
+                          maxValue: dashboardProvider.totalBudget == 0 ? 1 : dashboardProvider.totalBudget,
                           onTap: () => _showDetailDialog(
                             context,
                             'Control de Costos',
@@ -227,18 +223,6 @@ class DashboardScreen extends StatelessWidget {
                                 'Gasto Real: \$${dashboardProvider.totalExpenses.toStringAsFixed(0)}\n'
                                 'Disponible: \$${(dashboardProvider.totalBudget - dashboardProvider.totalExpenses).toStringAsFixed(0)}\n\n'
                                 'Uso: ${budgetUsedPercentage.toStringAsFixed(0)}%',
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        IncidentCard(
-                          count: dashboardProvider.openIncidentsCount,
-                          subtitle: 'Abiertas',
-                          onTap: () => _showDetailDialog(
-                            context,
-                            'Incidencias',
-                            dashboardProvider.openIncidentsCount == 0
-                                ? 'No hay incidencias abiertas en este momento.'
-                                : 'Total de incidencias abiertas: ${dashboardProvider.openIncidentsCount}',
                           ),
                         ),
                       ],
@@ -254,15 +238,7 @@ class DashboardScreen extends StatelessWidget {
               builder: (context, dashboardProvider, _) {
                 // Obtener los meses actuales para el avance mensual
                 final now = DateTime.now();
-                final months = [
-                  'Ene',
-                  'Feb',
-                  'Mar',
-                  'Abr',
-                  'May',
-                  'Jun',
-                  'Jul',
-                ];
+                final months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul'];
                 final monthlyData = months
                     .map(
                       (month) => MonthlyProgress(
@@ -284,9 +260,7 @@ class DashboardScreen extends StatelessWidget {
                           Expanded(
                             flex: 1,
                             child: ScheduleProgressCard(
-                              status: dashboardProvider.totalProjectsCount > 0
-                                  ? 'A tiempo'
-                                  : 'Sin datos',
+                              status: dashboardProvider.totalProjectsCount > 0 ? 'A tiempo' : 'Sin datos',
                               subtitle: 'vs. Planificado',
                               onTap: () => _showDetailDialog(
                                 context,
@@ -322,9 +296,7 @@ class DashboardScreen extends StatelessWidget {
                     return Column(
                       children: [
                         ScheduleProgressCard(
-                          status: dashboardProvider.totalProjectsCount > 0
-                              ? 'A tiempo'
-                              : 'Sin datos',
+                          status: dashboardProvider.totalProjectsCount > 0 ? 'A tiempo' : 'Sin datos',
                           subtitle: 'vs. Planificado',
                           onTap: () => _showDetailDialog(
                             context,
@@ -362,20 +334,7 @@ class DashboardScreen extends StatelessWidget {
   }
 
   String _getMonthAbbreviation(int month) {
-    const months = [
-      'Ene',
-      'Feb',
-      'Mar',
-      'Abr',
-      'May',
-      'Jun',
-      'Jul',
-      'Ago',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dic',
-    ];
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     return months[month - 1];
   }
 }

@@ -26,9 +26,7 @@ class _CircularProgressCardState extends State<CircularProgressCard> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: widget.onTap != null
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: widget.onTap != null ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
@@ -53,11 +51,7 @@ class _CircularProgressCardState extends State<CircularProgressCard> {
               children: [
                 Text(
                   widget.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF666666),
-                  ),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF666666)),
                 ),
                 const SizedBox(height: 24),
                 Center(
@@ -83,13 +77,7 @@ class _CircularProgressCardState extends State<CircularProgressCard> {
                                   color: Color(0xFF0A2C52),
                                 ),
                               ),
-                              Text(
-                                widget.subtitle,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF666666),
-                                ),
-                              ),
+                              Text(widget.subtitle, style: const TextStyle(fontSize: 14, color: Color(0xFF666666))),
                             ],
                           ),
                         ),
@@ -133,13 +121,7 @@ class _CircularProgressPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final sweepAngle = 2 * math.pi * (percentage / 100);
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      sweepAngle,
-      false,
-      progressPaint,
-    );
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), -math.pi / 2, sweepAngle, false, progressPaint);
   }
 
   @override
