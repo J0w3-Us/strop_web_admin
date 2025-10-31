@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:strop_admin_panel/core/providers/auth_provider.dart';
 
 /// App Shell profesional con Top App Bar, sidebar colapsable, breadcrumbs y Drawer en pantallas chicas
 class MainLayoutScreen extends StatefulWidget {
@@ -210,7 +212,14 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                         label: 'Cerrar sesión',
                         collapsed: collapsed,
                         selected: false,
-                        onTap: () => context.go('/login'),
+                        onTap: () {
+                          // Use AuthProvider to clear auth state then navigate
+                          try {
+                            final auth = Provider.of<AuthProvider>(context, listen: false);
+                            auth.logout();
+                          } catch (_) {}
+                          context.go('/login');
+                        },
                       ),
                     ),
                   const SizedBox(height: 8),
@@ -346,11 +355,12 @@ class _SideNavItemState extends State<_SideNavItem> {
           ),
           child: widget.collapsed
               ? Center(child: Icon(widget.icon, color: Colors.white70, size: 20))
-              : Row(
+                    : Row(
                   children: [
                     Icon(widget.icon, color: Colors.white70),
                     const SizedBox(width: 12),
-                    Expanded(
+                    Flexible(
+                      fit: FlexFit.loose,
                       child: Text(
                         widget.label,
                         overflow: TextOverflow.ellipsis,

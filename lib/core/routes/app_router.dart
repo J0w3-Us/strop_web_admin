@@ -7,13 +7,22 @@ import 'package:strop_admin_panel/feactures/projects/screens/project_list_screen
 import 'package:strop_admin_panel/feactures/projects/screens/project_detail_screen.dart';
 import 'package:strop_admin_panel/feactures/projects/screens/project_detail_view_screen.dart';
 import 'package:strop_admin_panel/feactures/settings/screens/account_settings_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:strop_admin_panel/core/providers/auth_provider.dart';
 
 /// Configuración central del enrutador usando go_router
 class AppRouter {
   AppRouter._();
 
-  static final GoRouter router = GoRouter(
+  static late final GoRouter router = GoRouter(
     initialLocation: '/login',
+    redirect: (context, state) {
+      final auth = context.read<AuthProvider>();
+      final loggingIn = state.uri.path == '/login';
+      if (!auth.isAuthenticated && !loggingIn) return '/login';
+      if (auth.isAuthenticated && loggingIn) return '/app/dashboard';
+      return null;
+    },
     routes: <RouteBase>[
       // Ruta de login (sin layout)
       GoRoute(
@@ -76,6 +85,8 @@ class AppRouter {
     ],
   );
 }
+
+// Redirect reads AuthProvider from the BuildContext; no extra listener class required.
 
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen({required this.title});
