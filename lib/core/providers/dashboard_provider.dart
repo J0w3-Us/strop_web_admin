@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:strop_admin_panel/core/state/data_state.dart';
 import 'package:strop_admin_panel/domain/projects/project.dart';
+import 'package:strop_admin_panel/domain/projects/project_repository.dart';
 import 'package:strop_admin_panel/domain/incidents/incident.dart';
 
 /// Gestor de estado central de la aplicación
@@ -11,6 +13,10 @@ class DashboardProvider extends ChangeNotifier {
   double _totalBudget = 0.0;
   double _totalExpenses = 0.0;
   final Map<String, double> _monthlyProgress = {};
+
+  // Async state tracking
+  DataState state = DataState.initial;
+  String? errorMessage;
 
   // Getters para acceso de solo lectura
   List<Project> get projects => List.unmodifiable(_projects);
@@ -171,14 +177,37 @@ class DashboardProvider extends ChangeNotifier {
 
   /// Cargar datos iniciales (simulados o desde API)
   Future<void> loadInitialData() async {
-    // Simular carga de datos
-    await Future.delayed(const Duration(milliseconds: 300));
+    // For backward compatibility keep this method but delegate to async fetch
+    await fetchDashboardData();
+  }
 
-    // Datos de ejemplo - en producción vendrían de la API
-    // Por ahora, dejamos las listas vacías para que el dashboard muestre ceros
-    // y el usuario vaya llenando datos
-
+  /// Método público para cargar datos desde el repositorio / API
+  Future<void> fetchDashboardData() async {
+    state = DataState.loading;
+    errorMessage = null;
     notifyListeners();
+
+    try {
+      final result = await ProjectRepository.instance.getAllEither();
+      result.fold(
+        (failure) {
+          errorMessage = failure.message;
+          state = DataState.error;
+        },
+        (projects) {
+          _projects = List.from(projects);
+          _totalBudget = _projects.length * 100000.0;
+          _totalExpenses = 0.0;
+          state = DataState.success;
+        },
+      );
+      notifyListeners();
+    } catch (e) {
+      // Unexpected error fallback
+      errorMessage = e.toString();
+      state = DataState.error;
+      notifyListeners();
+    }
   }
 
   /// Sincronizar con ProjectRepository existente

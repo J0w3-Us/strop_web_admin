@@ -1,98 +1,130 @@
 import 'dart:math';
 
+import 'package:fpdart/fpdart.dart';
+import 'package:strop_admin_panel/core/services/api_client.dart';
+import 'package:strop_admin_panel/domain/exceptions.dart';
+import 'package:strop_admin_panel/domain/failures.dart';
 import 'package:strop_admin_panel/domain/projects/project.dart';
+import 'package:strop_admin_panel/data/models/project_model.dart';
 
-/// Simulated API Project Repository
+/// Real API Project Repository
 class ProjectRepository {
-  ProjectRepository._() {
-    _initializeSampleData();
-  }
+  ProjectRepository._();
   static final ProjectRepository instance = ProjectRepository._();
 
-  final List<Project> _projects = [];
-
-  void _initializeSampleData() {
-    _projects.addAll([
-      Project(
-        id: '1',
-        code: 'ECC001',
-        name: 'Edificio Corporativo Central',
-        startDate: DateTime.now().subtract(const Duration(days: 60)),
-        endDate: DateTime.now().add(const Duration(days: 40)),
-        status: ProjectStatus.inProgress,
-      ),
-      Project(
-        id: '2',
-        code: 'RLV002',
-        name: 'Residencial Las Vistas Fase II',
-        startDate: DateTime.now().subtract(const Duration(days: 120)),
-        endDate: DateTime.now().subtract(const Duration(days: 10)),
-        status: ProjectStatus.completed,
-      ),
-      Project(
-        id: '3',
-        code: 'PIN003',
-        name: 'Parque Industrial del Norte',
-        startDate: DateTime.now().subtract(const Duration(days: 30)),
-        endDate: DateTime.now().add(const Duration(days: 60)),
-        status: ProjectStatus.planned,
-      ),
-      Project(
-        id: '4',
-        code: 'CCM004',
-        name: 'Centro Comercial Metrópolis',
-        startDate: DateTime.now().subtract(const Duration(days: 45)),
-        endDate: DateTime.now().add(const Duration(days: 15)),
-        status: ProjectStatus.onHold,
-      ),
-    ]);
+  Future<List<Project>> getAll() async {
+    try {
+      final response = await ApiClient.instance.get('/projects', (json) {
+        return (json as List)
+            .map((item) => ProjectModel.fromJson(item))
+            .toList();
+      });
+      return response.cast<Project>();
+    } catch (e) {
+      if (e is ServerException || e is NetworkException) rethrow;
+      throw ServerException('Failed to load projects: $e');
+    }
   }
 
-  // Simulate API delay
-  static const Duration _apiDelay = Duration(milliseconds: 500);
-
-  Future<List<Project>> getAll() async {
-    await Future.delayed(_apiDelay);
-    return List.unmodifiable(_projects);
+  /// Either-based API to return either a Failure or the projects list
+  Future<Either<Failure, List<Project>>> getAllEither() async {
+    try {
+      final projects = await getAll();
+      return Right(projects);
+    } catch (e) {
+      if (e is ServerException) return Left(ServerFailure(e.message));
+      if (e is NetworkException) return Left(NetworkFailure(e.message));
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   Future<List<Project>> search(String query) async {
-    await Future.delayed(_apiDelay);
-    if (query.trim().isEmpty) return await getAll();
-    final all = await getAll();
-    return all
-        .where(
-          (p) =>
-              p.name.toLowerCase().contains(query.toLowerCase()) ||
-              p.code.toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
+    try {
+      if (query.trim().isEmpty) return await getAll();
+
+      final response = await ApiClient.instance.get(
+        '/projects?search=${Uri.encodeComponent(query)}',
+        (json) {
+          return (json as List)
+              .map((item) => ProjectModel.fromJson(item))
+              .toList();
+        },
+      );
+      return response.cast<Project>();
+    } catch (e) {
+      if (e is ServerException || e is NetworkException) rethrow;
+      throw ServerException('Failed to search projects: $e');
+    }
   }
 
   Future<Project?> getById(String id) async {
-    await Future.delayed(_apiDelay);
     try {
-      return _projects.firstWhere((p) => p.id == id);
-    } catch (_) {
-      return null;
+      final response = await ApiClient.instance.get('/projects/$id', (json) {
+        return ProjectModel.fromJson(json);
+      });
+      return response as Project;
+    } catch (e) {
+      if (e is ServerException && e.message.contains('404')) return null;
+      if (e is ServerException || e is NetworkException) rethrow;
+      throw ServerException('Failed to load project: $e');
+    }
+  }
+
+  Future<Either<Failure, Project?>> getByIdEither(String id) async {
+    try {
+      final project = await getById(id);
+      return Right(project);
+    } catch (e) {
+      if (e is ServerException) return Left(ServerFailure(e.message));
+      if (e is NetworkException) return Left(NetworkFailure(e.message));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   Future<void> upsert(Project project) async {
-    await Future.delayed(_apiDelay);
-    final index = _projects.indexWhere((p) => p.id == project.id);
-    if (index == -1) {
-      _projects.add(project);
-    } else {
-      _projects[index] = project;
+    try {
+      final projectModel = ProjectModel(
+        id: project.id,
+        name: project.name,
+        status: project.status.name,
+        startDate:
+            project.startDate?.toIso8601String() ??
+            DateTime.now().toIso8601String(),
+        endDate:
+            project.endDate?.toIso8601String() ??
+            DateTime.now().toIso8601String(),
+        budget: 0.0, // Default budget
+        team: project.members,
+      );
+
+      if (project.id.isEmpty) {
+        // Create new project
+        await ApiClient.instance.post(
+          '/projects',
+          projectModel.toJson(),
+          (json) => json,
+        );
+      } else {
+        // Update existing project
+        await ApiClient.instance.put(
+          '/projects/${project.id}',
+          projectModel.toJson(),
+          (json) => json,
+        );
+      }
+    } catch (e) {
+      if (e is ServerException || e is NetworkException) rethrow;
+      throw ServerException('Failed to save project: $e');
     }
-    // Simulate API success
   }
 
   Future<void> delete(String id) async {
-    await Future.delayed(_apiDelay);
-    _projects.removeWhere((p) => p.id == id);
-    // Simulate API success
+    try {
+      await ApiClient.instance.delete('/projects/$id', (json) => json);
+    } catch (e) {
+      if (e is ServerException || e is NetworkException) rethrow;
+      throw ServerException('Failed to delete project: $e');
+    }
   }
 
   String newId() => Random().nextInt(1 << 31).toString();

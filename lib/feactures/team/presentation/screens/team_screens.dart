@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:strop_admin_panel/core/providers/team_provider.dart';
+import 'package:strop_admin_panel/core/widgets/async_state_builder.dart';
 
 // Esta pantalla será responsable de mostrar la lista de usuarios
 // y de lanzar el diálogo para crear uno nuevo.
@@ -18,7 +19,7 @@ class _TeamScreenState extends State<TeamScreen> {
     super.initState();
     // Load users from provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TeamProvider>().load();
+      context.read<TeamProvider>().fetchTeamData();
     });
   }
 
@@ -43,26 +44,38 @@ class _TeamScreenState extends State<TeamScreen> {
       // Mostramos la lista desde el provider
       body: Consumer<TeamProvider>(
         builder: (context, team, _) {
-          final users = team.users;
-          if (users.isEmpty) {
-            return const Center(
-              child: Text('Aún no hay usuarios en el sistema.', style: TextStyle(fontSize: 16, color: Colors.grey)),
-            );
-          }
-          return ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              final u = users[index];
-              return ListTile(
-                leading: const Icon(Icons.person),
-                title: Text(u.name),
-                subtitle: Text(u.role ?? 'Residente'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () async {
-                    await team.delete(u.id);
-                  },
-                ),
+          return AsyncStateBuilder(
+            state: team.state,
+            loadingBuilder: (ctx) =>
+                const Center(child: CircularProgressIndicator()),
+            errorBuilder: (ctx, msg) =>
+                Center(child: Text(msg ?? 'Error cargando usuarios')),
+            successBuilder: (ctx) {
+              final users = team.users;
+              if (users.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Aún no hay usuarios en el sistema.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                );
+              }
+              return ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final u = users[index];
+                  return ListTile(
+                    leading: const Icon(Icons.person),
+                    title: Text(u.name),
+                    subtitle: Text(u.role ?? 'Residente'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () async {
+                        await team.delete(u.id);
+                      },
+                    ),
+                  );
+                },
               );
             },
           );
@@ -117,13 +130,17 @@ class _AddUserDialogState extends State<_AddUserDialog> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _emailCtrl,
-              decoration: const InputDecoration(labelText: 'Correo Electrónico'),
+              decoration: const InputDecoration(
+                labelText: 'Correo Electrónico',
+              ),
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _roleCtrl,
-              decoration: const InputDecoration(labelText: 'Rol (ej. Residente)'),
+              decoration: const InputDecoration(
+                labelText: 'Rol (ej. Residente)',
+              ),
             ),
           ],
         ),
@@ -143,7 +160,11 @@ class _AddUserDialogState extends State<_AddUserDialog> {
             if (name.isEmpty) return;
             // Crear usuario via provider
             final team = context.read<TeamProvider>();
-            team.create(name, email: email.isEmpty ? null : email, role: role.isEmpty ? null : role);
+            team.create(
+              name,
+              email: email.isEmpty ? null : email,
+              role: role.isEmpty ? null : role,
+            );
             Navigator.of(context).pop();
           },
           child: const Text('Guardar Usuario'),
