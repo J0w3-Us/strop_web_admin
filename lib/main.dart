@@ -10,9 +10,11 @@ import 'package:strop_admin_panel/domain/auth/auth_repository.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Configurar la API real
+  // Configurar la API real (solo para datos que no sean auth). El login
+  // seguirá usando credenciales locales de prueba (demo) para evitar
+  // depender de un endpoint de autenticación en el backend.
   ApiClient.instance.init(baseUrl: 'http://localhost:3000');
-  AuthRepository.instance.enableApi(true);
+  AuthRepository.instance.enableApi(false); // usar modo demo (test@local)
 
   runApp(
     MultiProvider(
