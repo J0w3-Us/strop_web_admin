@@ -12,7 +12,7 @@ class IncidentRepository {
 
   Future<List<Incident>> getAll() async {
     try {
-      final response = await ApiClient.instance.get('/incidents', (json) {
+  final response = await ApiClient.instance.get('/api/incidents', (json) {
         return (json as List)
             .map((item) => IncidentModel.fromJson(item))
             .toList();
@@ -38,7 +38,7 @@ class IncidentRepository {
   Future<List<Incident>> getByProject(String projectId) async {
     try {
       final response = await ApiClient.instance.get(
-        '/incidents?projectId=$projectId',
+        '/api/incidents?projectId=$projectId',
         (json) {
           return (json as List)
               .map((item) => IncidentModel.fromJson(item))
@@ -54,7 +54,7 @@ class IncidentRepository {
 
   Future<Incident?> getById(String id) async {
     try {
-      final response = await ApiClient.instance.get('/incidents/$id', (json) {
+      final response = await ApiClient.instance.get('/api/incidents/$id', (json) {
         return IncidentModel.fromJson(json);
       });
       return response as Incident;
@@ -94,7 +94,7 @@ class IncidentRepository {
       );
 
       final response = await ApiClient.instance.post(
-        '/incidents',
+        '/api/incidents',
         incidentModel.toJson(),
         (json) {
           return IncidentModel.fromJson(json);
@@ -127,7 +127,7 @@ class IncidentRepository {
       );
 
       final response = await ApiClient.instance.put(
-        '/incidents/${incident.id}',
+        '/api/incidents/${incident.id}',
         incidentModel.toJson(),
         (json) {
           return IncidentModel.fromJson(json);
@@ -142,7 +142,7 @@ class IncidentRepository {
 
   Future<void> delete(String id) async {
     try {
-      await ApiClient.instance.delete('/incidents/$id', (json) => json);
+  await ApiClient.instance.delete('/api/incidents/$id', (json) => json);
     } catch (e) {
       if (e is ServerException || e is NetworkException) rethrow;
       throw ServerException('Failed to delete incident: $e');

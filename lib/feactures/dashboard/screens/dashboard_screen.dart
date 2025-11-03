@@ -32,7 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
         backgroundColor: const Color(0xFF0A2C52),
-      ),
+      ), 
     );
   }
 

@@ -31,7 +31,12 @@ class AuthRepository {
     }
 
     try {
-      final res = await ApiClient.instance.post('/auth/login', {
+      // Usamos /api/auth/login para seguir la convención de la especificación
+      // Si tu servidor expone la ruta en la raíz como /auth/login, cambia aquí
+      // a '/auth/login' o descomenta la alternativa abajo.
+      // Ejemplo alternativo si tu backend aún expone /auth/login:
+      // final res = await ApiClient.instance.post('/auth/login', {
+      final res = await ApiClient.instance.post('/api/auth/login', {
         'email': email,
         'password': password,
       }, (d) => d as Map<String, dynamic>);

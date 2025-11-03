@@ -147,16 +147,21 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.emailAddress,
+                        // Validación comentada para pruebas contra API externa.
+                        // Descomentar el bloque siguiente cuando quieras reactivar la validación local.
+                        /*
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa un email';
                           }
-                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                          final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$');
                           if (!emailRegex.hasMatch(value)) {
                             return 'Ingresa un email válido';
                           }
                           return null;
                         },
+                        */
+                        validator: (value) => null,
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -233,12 +238,16 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                             onPressed: () => setState(() => _obscureCurrentPassword = !_obscureCurrentPassword),
                           ),
                         ),
+                        // Comentado para permitir pruebas sin validación local.
+                        /*
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa tu contraseña actual';
                           }
                           return null;
                         },
+                        */
+                        validator: (value) => null,
                       ),
                       const SizedBox(height: 16),
 
@@ -255,6 +264,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                             onPressed: () => setState(() => _obscureNewPassword = !_obscureNewPassword),
                           ),
                         ),
+                        // Comentado para pruebas con API. Descomentar para reactivar reglas de contraseña.
+                        /*
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa una nueva contraseña';
@@ -264,6 +275,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                           }
                           return null;
                         },
+                        */
+                        validator: (value) => null,
                       ),
                       const SizedBox(height: 16),
 
@@ -280,6 +293,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                             onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                           ),
                         ),
+                        // Comentado para permitir pruebas rápidas sin validación local.
+                        /*
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor confirma tu nueva contraseña';
@@ -289,6 +304,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                           }
                           return null;
                         },
+                        */
+                        validator: (value) => null,
                       ),
                       const SizedBox(height: 24),
 

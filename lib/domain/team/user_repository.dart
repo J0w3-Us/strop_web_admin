@@ -12,7 +12,7 @@ class UserRepository {
 
   Future<List<User>> getAll() async {
     try {
-      final response = await ApiClient.instance.get('/users', (json) {
+      final response = await ApiClient.instance.get('/api/users', (json) {
         return (json as List).map((item) => UserModel.fromJson(item)).toList();
       });
       return response.cast<User>();
@@ -35,7 +35,7 @@ class UserRepository {
 
   Future<User?> getById(String id) async {
     try {
-      final response = await ApiClient.instance.get('/users/$id', (json) {
+      final response = await ApiClient.instance.get('/api/users/$id', (json) {
         return UserModel.fromJson(json);
       });
       return response as User;
@@ -58,7 +58,7 @@ class UserRepository {
       );
 
       final response = await ApiClient.instance.post(
-        '/users',
+        '/api/users',
         userModel.toJson(),
         (json) {
           return UserModel.fromJson(json);
@@ -83,7 +83,7 @@ class UserRepository {
       );
 
       final response = await ApiClient.instance.put(
-        '/users/${user.id}',
+        '/api/users/${user.id}',
         userModel.toJson(),
         (json) {
           return UserModel.fromJson(json);
@@ -98,7 +98,7 @@ class UserRepository {
 
   Future<void> delete(String id) async {
     try {
-      await ApiClient.instance.delete('/users/$id', (json) => json);
+  await ApiClient.instance.delete('/api/users/$id', (json) => json);
     } catch (e) {
       if (e is ServerException || e is NetworkException) rethrow;
       throw ServerException('Failed to delete user: $e');

@@ -14,7 +14,7 @@ class ProjectRepository {
 
   Future<List<Project>> getAll() async {
     try {
-      final response = await ApiClient.instance.get('/projects', (json) {
+  final response = await ApiClient.instance.get('/api/projects', (json) {
         return (json as List)
             .map((item) => ProjectModel.fromJson(item))
             .toList();
@@ -43,7 +43,7 @@ class ProjectRepository {
       if (query.trim().isEmpty) return await getAll();
 
       final response = await ApiClient.instance.get(
-        '/projects?search=${Uri.encodeComponent(query)}',
+        '/api/projects?search=${Uri.encodeComponent(query)}',
         (json) {
           return (json as List)
               .map((item) => ProjectModel.fromJson(item))
@@ -59,7 +59,7 @@ class ProjectRepository {
 
   Future<Project?> getById(String id) async {
     try {
-      final response = await ApiClient.instance.get('/projects/$id', (json) {
+  final response = await ApiClient.instance.get('/api/projects/$id', (json) {
         return ProjectModel.fromJson(json);
       });
       return response as Project;
@@ -100,14 +100,14 @@ class ProjectRepository {
       if (project.id.isEmpty) {
         // Create new project
         await ApiClient.instance.post(
-          '/projects',
+          '/api/projects',
           projectModel.toJson(),
           (json) => json,
         );
       } else {
         // Update existing project
         await ApiClient.instance.put(
-          '/projects/${project.id}',
+          '/api/projects/${project.id}',
           projectModel.toJson(),
           (json) => json,
         );
@@ -120,7 +120,7 @@ class ProjectRepository {
 
   Future<void> delete(String id) async {
     try {
-      await ApiClient.instance.delete('/projects/$id', (json) => json);
+  await ApiClient.instance.delete('/api/projects/$id', (json) => json);
     } catch (e) {
       if (e is ServerException || e is NetworkException) rethrow;
       throw ServerException('Failed to delete project: $e');
